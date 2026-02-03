@@ -480,20 +480,40 @@
             const twitter = this.querySelectorAll('input[type="text"]')[0].value;
             const wallet = this.querySelectorAll('input[type="text"]')[1].value;
             
-            // Here you would normally send to your backend/database
-            // For now, we'll just show a success message
+            // Disable submit button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
             
-            alert('🎯 Signed up successfully!\n\nEmail: ' + email + '\n\nYou\'ll be notified when airdrop claims go live (Week 4).\n\nCheck your email for confirmation.');
-            
-            // Reset form
-            this.reset();
-            
-            // In production, replace with actual form submission:
-            // fetch('YOUR_BACKEND_URL', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ email, twitter, wallet })
-            // });
+            // Send to Google Sheets
+            fetch('https://script.google.com/macros/s/AKfycbwxu0jlhJQN9hjO5u-n2wj7NjnXWzGZHUv5QMK40AI0mlylWoQPaPbF-eIs8mIR9g9h/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    email: email, 
+                    twitter: twitter, 
+                    wallet: wallet 
+                }),
+                mode: 'no-cors' // Required for Google Apps Script
+            })
+            .then(() => {
+                // Success
+                alert('🎯 Signed up successfully!\n\nEmail: ' + email + '\n\nYou\'ll be notified when airdrop claims go live (Week 4).\n\nCheck your email for confirmation.');
+                this.reset();
+            })
+            .catch((error) => {
+                // Error handling
+                alert('❌ Something went wrong. Please try again or email neuralstandard@gmail.com directly.');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
         });
 
         // Smooth scroll for anchor links
